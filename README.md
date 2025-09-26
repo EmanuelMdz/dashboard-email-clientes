@@ -1,6 +1,16 @@
-# Dashboard de Campañas - Email Marketing
+{{# Dashboard Email Clientes - Ainnovate
 
-Dashboard para gestionar campañas de email marketing conectado con la API de Instantly.
+Dashboard para gestionar campañas de email marketing conectado con Instantly API, diseñado para la agencia Ainnovate.
+
+## Características
+
+- **Dashboard de Cliente**: Visualización de métricas de campañas en tiempo real
+- **Panel de Administración**: Gestión de clientes y asignación de campañas
+- **Integración con Instantly**: Sincronización automática de campañas y métricas
+- **Autenticación Supabase**: Sistema de login seguro con roles
+- **Gráficos Interactivos**: Charts con gradientes y watermarks de marca
+- **Diseño Responsive**: Optimizado para desktop y móvil
+- **Branding Ainnovate**: Colores y logos corporativos integrados
 
 ## Stack Tecnológico
 
@@ -8,36 +18,28 @@ Dashboard para gestionar campañas de email marketing conectado con la API de In
 - **Backend**: Vercel Functions / API Routes
 - **Base de datos**: Supabase (PostgreSQL)
 - **Autenticación**: Supabase Auth
+- **Gráficos**: Chart.js + react-chartjs-2
 - **Hosting**: Vercel + GitHub
+- **API Externa**: Instantly (vía n8n webhooks)
 
-## Características
+## Requisitos Previos
 
-### Panel Cliente
-- Login simple (email/password)
-- Dashboard con métricas de campañas asignadas
-- Gráficos de mensajes enviados y respuestas por día
-- Filtros por fecha y campaña
-- Botón refresh manual para sincronizar datos
-- Exportar reportes en CSV
+- Node.js 18+
+- Cuenta de Supabase
+- API Key de Instantly
+- Cuenta de Vercel (para deployment)
 
-### Panel Administrador
-- Crear/editar/eliminar clientes
-- Asignar campañas de Instantly a clientes específicos
-- Vista consolidada de métricas de todos los clientes
-- Gestión de sincronización con Instantly
-
-## Instalación
+## Instalación Local
 
 1. **Clonar el repositorio**
 ```bash
-git clone <repository-url>
-cd dashboard-emal-clientes-ainnovate
+git clone https://github.com/EmanuelMdz/dashboard-email-clientes.git
+cd dashboard-email-clientes
 ```
 
 2. **Instalar dependencias**
 ```bash
 npm install
-```
 
 3. **Configurar variables de entorno**
 Crear archivo `.env` con:
