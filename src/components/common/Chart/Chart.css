@@ -1,0 +1,63 @@
+.chart-container {
+  position: relative;
+  width: 100%;
+  background-color: white;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.chart-container canvas {
+  max-height: 100% !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chart-container {
+    padding: 12px;
+  }
+}
+
+/* Loading state */
+.chart-container--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+  border: 2px dashed #d1d5db;
+}
+
+.chart-container--loading::after {
+  content: 'Cargando gráfico...';
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Error state */
+.chart-container--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fef2f2;
+  border: 2px dashed #fca5a5;
+  color: #dc2626;
+}
+
+.chart-container--error::after {
+  content: 'Error al cargar el gráfico';
+  font-size: 14px;
+}
+
+/* No data state */
+.chart-container--no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+  border: 2px dashed #d1d5db;
+  color: #6b7280;
+}
+
+.chart-container--no-data::after {
+  content: 'No hay datos para mostrar';
+  font-size: 14px;
+}

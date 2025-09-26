@@ -1,0 +1,152 @@
+.campaign-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Resumen de métricas */
+.metrics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  padding: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card--highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.metric-card--highlight .metric-value {
+  color: white;
+}
+
+.metric-card--highlight .metric-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.metric-content {
+  padding: 24px;
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.metric-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Gráfico */
+.chart-card {
+  min-height: 500px;
+}
+
+/* Tabla */
+.table-card {
+  overflow: hidden;
+}
+
+/* Estado sin datos */
+.no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .metrics-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .metric-content {
+    padding: 20px 16px;
+  }
+  
+  .metric-value {
+    font-size: 24px;
+  }
+  
+  .metric-label {
+    font-size: 12px;
+  }
+  
+  .chart-card {
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .metric-content {
+    padding: 16px;
+  }
+  
+  .metric-value {
+    font-size: 20px;
+  }
+  
+  .chart-card {
+    min-height: 300px;
+  }
+}
+
+/* Animaciones */
+.metric-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.metric-card:nth-child(1) { animation-delay: 0.1s; }
+.metric-card:nth-child(2) { animation-delay: 0.2s; }
+.metric-card:nth-child(3) { animation-delay: 0.3s; }
+.metric-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metric-card {
+    animation: none;
+  }
+  
+  .metric-card:hover {
+    transform: none;
+  }
+}

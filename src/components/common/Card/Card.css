@@ -1,0 +1,173 @@
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Variantes */
+.card--default {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+}
+
+.card--elevated {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card--elevated:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.card--bordered {
+  border: 2px solid #e5e7eb;
+}
+
+.card--success {
+  border-left: 4px solid #10b981;
+}
+
+.card--warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.card--danger {
+  border-left: 4px solid #ef4444;
+}
+
+.card--info {
+  border-left: 4px solid #3b82f6;
+}
+
+/* Padding */
+.card--padding-none .card__content {
+  padding: 0;
+}
+
+.card--padding-small .card__content {
+  padding: 12px;
+}
+
+.card--padding-medium .card__content {
+  padding: 20px;
+}
+
+.card--padding-large .card__content {
+  padding: 32px;
+}
+
+/* Header */
+.card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 0 20px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 0;
+}
+
+.card__header:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.card__header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.card__title {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+}
+
+.card__subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+
+/* Content */
+.card__content {
+  padding: 20px;
+}
+
+.card__header + .card__content {
+  padding-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px 16px 0 16px;
+  }
+  
+  .card__actions {
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+  
+  .card--padding-medium .card__content {
+    padding: 16px;
+  }
+  
+  .card--padding-large .card__content {
+    padding: 20px;
+  }
+  
+  .card__header + .card__content {
+    padding-top: 16px;
+  }
+}
+
+/* Estados especiales */
+.card--loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.card--loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}

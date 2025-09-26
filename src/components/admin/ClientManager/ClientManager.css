@@ -1,0 +1,205 @@
+.client-manager {
+  width: 100%;
+}
+
+/* Client Info */
+.client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.client-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 14px;
+}
+
+.client-email {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Role Badge */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-badge--admin {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.role-badge--client {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Campaigns Cell */
+.campaigns-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.assigned-campaigns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.no-campaigns-text {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.campaign-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #dbeafe;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+  gap: 4px;
+}
+
+.campaign-tag-name {
+  color: #1e40af;
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.campaign-remove-btn {
+  background: none;
+  border: none;
+  color: #1e40af;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.campaign-remove-btn:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+.campaign-remove-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.campaign-selector {
+  width: 100%;
+}
+
+.campaign-select {
+  font-size: 12px;
+  min-height: 32px;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge--active {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge--inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Error Message */
+.error-message {
+  padding: 12px 16px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* Actions */
+.table__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.table__actions button {
+  padding: 4px 8px;
+  font-size: 12px;
+  min-height: auto;
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .client-info {
+    gap: 1px;
+  }
+  
+  .client-name {
+    font-size: 13px;
+  }
+  
+  .client-email {
+    font-size: 12px;
+  }
+  
+  .table__actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .table__actions button {
+    width: 100%;
+    min-width: 80px;
+  }
+  
+  .role-badge,
+  .status-badge {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .table__actions button {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}

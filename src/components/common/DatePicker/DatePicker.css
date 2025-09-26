@@ -1,0 +1,155 @@
+.datepicker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.datepicker__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.datepicker__input-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.datepicker {
+  width: 100%;
+  padding: 8px 40px 8px 12px;
+  font-size: 16px;
+  font-family: inherit;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  color: #374151;
+  transition: all 0.2s ease;
+  min-height: 40px;
+}
+
+.datepicker:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.datepicker:hover:not(.datepicker--disabled) {
+  border-color: #9ca3af;
+}
+
+/* Estados */
+.datepicker--error {
+  border-color: #ef4444;
+}
+
+.datepicker--error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.datepicker--disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Icono del calendario */
+.datepicker__icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.datepicker__calendar-icon {
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+}
+
+/* Rango de fechas */
+.daterange-picker {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+}
+
+.daterange-picker .datepicker-container {
+  flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .datepicker {
+    font-size: 16px; /* Prevenir zoom en iOS */
+    min-height: 44px; /* Mejor accesibilidad táctil */
+  }
+  
+  .daterange-picker {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .daterange-picker .datepicker-container {
+    width: 100%;
+  }
+}
+
+/* Variantes de tamaño */
+.datepicker--small {
+  padding: 6px 32px 6px 10px;
+  font-size: 14px;
+  min-height: 32px;
+}
+
+.datepicker--large {
+  padding: 12px 48px 12px 16px;
+  font-size: 18px;
+  min-height: 48px;
+}
+
+.datepicker--small + .datepicker__icon {
+  right: 10px;
+}
+
+.datepicker--small + .datepicker__icon .datepicker__calendar-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.datepicker--large + .datepicker__icon {
+  right: 16px;
+}
+
+.datepicker--large + .datepicker__icon .datepicker__calendar-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Personalización del input nativo de fecha */
+.datepicker::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  cursor: pointer;
+}
+
+.datepicker::-webkit-inner-spin-button,
+.datepicker::-webkit-clear-button {
+  display: none;
+}
+
+/* Firefox */
+.datepicker::-moz-focus-inner {
+  border: 0;
+}
