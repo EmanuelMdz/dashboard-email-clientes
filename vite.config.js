@@ -2,12 +2,14 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
+  // Aplicar drop de console/debugger solo en build de producción
   esbuild: {
     loader: 'jsx',
     include: /src\/.*\.[jt]sx?$/,
-    exclude: []
+    exclude: [],
+    drop: command === 'build' ? ['console', 'debugger'] : []
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -37,4 +39,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))
