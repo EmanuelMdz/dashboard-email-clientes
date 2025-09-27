@@ -20,7 +20,7 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
     }
   }, [metrics, campaigns, selectedCampaign])
 
-  // Preparar datos para el gráfico (rellenando días vacíos)
+  // Preparar datos para el gráfico (rellenando días vacíos sin duplicar valores)
   const chartData = useMemo(() => {
     // Crear mapa de métricas por fecha (agregado de todas las campañas)
     const totalsByDate = metrics.reduce((acc, metric) => {
@@ -33,55 +33,14 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
       return acc
     }, {})
 
-    // Generar el rango completo de fechas seleccionado
-    let fullDates = getDatesBetween(dateRange.startDate, dateRange.endDate)
-    
-    // Si el rango es de un solo día, extender artificialmente para mostrar línea
+    // Generar el rango completo de fechas seleccionado (sin expandir artificialmente)
+    const fullDates = getDatesBetween(dateRange.startDate, dateRange.endDate)
     const isOneDayRange = fullDates.length === 1
-    if (isOneDayRange) {
-      // Crear un rango artificial de 3 días centrado en el día actual
-      const centerDate = fullDates[0]
-      const prevDate = new Date(centerDate)
-      prevDate.setDate(prevDate.getDate() - 1)
-      const nextDate = new Date(centerDate)
-      nextDate.setDate(nextDate.getDate() + 1)
-      
-      fullDates = [
-        formatDateForInput(prevDate),
-        centerDate,
-        formatDateForInput(nextDate)
-      ]
-    }
 
     // Construir las series asegurando un valor por cada día del rango
     const labels = fullDates.map(d => formatDate(d))
-    let sentSeries = fullDates.map(d => totalsByDate[d]?.sent || 0)
-    let repliesSeries = fullDates.map(d => totalsByDate[d]?.replies || 0)
-
-    // Si es un rango de un día, extender el valor a todos los días artificiales
-    if (isOneDayRange) {
-      const centerValue = totalsByDate[fullDates[1]]
-      if (centerValue?.sent > 0) {
-        sentSeries = [centerValue.sent, centerValue.sent, centerValue.sent]
-      }
-      if (centerValue?.replies > 0) {
-        repliesSeries = [centerValue.replies, centerValue.replies, centerValue.replies]
-      }
-    } else {
-      // Lógica original para rangos múltiples
-      const sentNonZeroIndices = sentSeries.map((v, i) => v > 0 ? i : -1).filter(i => i >= 0)
-      const repliesNonZeroIndices = repliesSeries.map((v, i) => v > 0 ? i : -1).filter(i => i >= 0)
-      
-      if (sentNonZeroIndices.length === 1) {
-        const value = sentSeries[sentNonZeroIndices[0]]
-        sentSeries = sentSeries.map(() => value)
-      }
-      
-      if (repliesNonZeroIndices.length === 1) {
-        const value = repliesSeries[repliesNonZeroIndices[0]]
-        repliesSeries = repliesSeries.map(() => value)
-      }
-    }
+    const sentSeries = fullDates.map(d => totalsByDate[d]?.sent || 0)
+    const repliesSeries = fullDates.map(d => totalsByDate[d]?.replies || 0)
 
     const datasets = [
       {
@@ -89,9 +48,9 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
         data: sentSeries,
         borderColor: '#3b82f6',
         borderWidth: 3,
-        pointRadius: isOneDayRange ? 0 : 5,
-        pointHoverRadius: isOneDayRange ? 0 : 7,
-        tension: isOneDayRange ? 0 : 0.4,
+        pointRadius: isOneDayRange ? 4 : 5,
+        pointHoverRadius: isOneDayRange ? 5 : 7,
+        tension: 0.2,
         spanGaps: true
       },
       {
@@ -99,9 +58,9 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
         data: repliesSeries,
         borderColor: '#10b981',
         borderWidth: 2,
-        pointRadius: isOneDayRange ? 0 : 4,
-        pointHoverRadius: isOneDayRange ? 0 : 6,
-        tension: isOneDayRange ? 0 : 0.4,
+        pointRadius: isOneDayRange ? 3 : 4,
+        pointHoverRadius: isOneDayRange ? 4 : 6,
+        tension: 0.2,
         spanGaps: true
       }
     ]
