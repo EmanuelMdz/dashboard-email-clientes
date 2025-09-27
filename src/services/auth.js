@@ -3,47 +3,57 @@ import { supabase } from './supabase.js'
 // Función para hacer login
 export const login = async (email, password) => {
   try {
-    // Buscar el cliente por email
-    const { data: client, error } = await supabase
+    // 1. Usar el sistema de autenticación de Supabase
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      throw new Error('Credenciales inválidas');
+    }
+
+    if (!data.user) {
+        throw new Error('No se pudo autenticar al usuario.');
+    }
+
+    // 2. Obtener el perfil del usuario desde la tabla clients
+    const { data: client, error: profileError } = await supabase
       .from('clients')
       .select('*')
-      .eq('email', email)
-      .eq('is_active', true)
-      .single()
-    
-    if (error || !client) {
-      throw new Error('Credenciales inválidas')
+      .eq('id', data.user.id)
+      .single();
+
+    if (profileError || !client) {
+      // Si no se encuentra el perfil, el login falla para evitar inconsistencias.
+      await supabase.auth.signOut(); // Cerramos la sesión recién creada
+      throw new Error('No se pudo encontrar el perfil del usuario asociado.');
     }
-    
-    // Por simplicidad, comparamos la contraseña directamente
-    // En producción deberías usar bcrypt o similar
-    if (client.password_hash !== password) {
-      throw new Error('Credenciales inválidas')
-    }
-    
-    // Guardar sesión en localStorage
+
+    // 3. Guardar sesión personalizada en localStorage
     const sessionData = {
       user: {
         id: client.id,
         email: client.email,
         name: client.name,
-        role: client.role
+        role: client.role,
       },
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    };
     
-    localStorage.setItem('dashboard_session', JSON.stringify(sessionData))
+    localStorage.setItem('dashboard_session', JSON.stringify(sessionData));
     
-    return sessionData.user
+    return sessionData.user;
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
 // Función para logout
-export const logout = () => {
-  localStorage.removeItem('dashboard_session')
-}
+export const logout = async () => {
+  await supabase.auth.signOut();
+  localStorage.removeItem('dashboard_session');
+};
 
 // Función para obtener el usuario actual
 export const getCurrentUser = () => {
