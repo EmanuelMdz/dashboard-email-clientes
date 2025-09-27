@@ -3,34 +3,25 @@ import { supabase } from './supabase.js'
 // Función para hacer login
 export const login = async (email, password) => {
   try {
-    // 1. Usar el sistema de autenticación de Supabase
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (authError) {
-      throw new Error('Credenciales inválidas');
-    }
-
-    if (!data.user) {
-        throw new Error('No se pudo autenticar al usuario.');
-    }
-
-    // 2. Obtener el perfil del usuario desde la tabla clients
-    const { data: client, error: profileError } = await supabase
+    // Buscar el cliente por email
+    const { data: client, error } = await supabase
       .from('clients')
       .select('*')
-      .eq('id', data.user.id)
+      .eq('email', email)
+      .eq('is_active', true)
       .single();
-
-    if (profileError || !client) {
-      // Si no se encuentra el perfil, el login falla para evitar inconsistencias.
-      await supabase.auth.signOut(); // Cerramos la sesión recién creada
-      throw new Error('No se pudo encontrar el perfil del usuario asociado.');
+    
+    if (error || !client) {
+      throw new Error('Credenciales inválidas o usuario inactivo');
     }
-
-    // 3. Guardar sesión personalizada en localStorage
+    
+    // En un entorno real, la contraseña debería estar hasheada.
+    // Aquí la comparamos directamente por simplicidad.
+    if (client.password_hash !== password) {
+      throw new Error('Credenciales inválidas');
+    }
+    
+    // Guardar sesión en localStorage
     const sessionData = {
       user: {
         id: client.id,
@@ -50,8 +41,7 @@ export const login = async (email, password) => {
 };
 
 // Función para logout
-export const logout = async () => {
-  await supabase.auth.signOut();
+export const logout = () => {
   localStorage.removeItem('dashboard_session');
 };
 
