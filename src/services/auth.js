@@ -1,27 +1,37 @@
 import { supabase } from './supabase.js'
 
+// Env vars used for direct REST fallback (build-time via Vite)
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+
 // Función para hacer login
 export const login = async (email, password) => {
   try {
-    // Buscar el cliente por email
-    const { data: client, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('email', email)
-      .eq('is_active', true)
-      .single();
-    
-    if (error || !client) {
-      throw new Error('Credenciales inválidas o usuario inactivo');
+    // Consulta directa por REST con apikey en la URL (evita 401 por falta de headers)
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      throw new Error('Faltan variables de entorno de Supabase en producción')
     }
-    
-    // En un entorno real, la contraseña debería estar hasheada.
-    // Aquí la comparamos directamente por simplicidad.
+
+    const url = `${SUPABASE_URL}/rest/v1/clients?select=*` +
+      `&email=eq.${encodeURIComponent(email)}` +
+      `&is_active=eq.true` +
+      `&apikey=${SUPABASE_ANON_KEY}`
+
+    const res = await fetch(url)
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(`Login API error: ${res.status} ${text}`)
+    }
+    const arr = await res.json()
+    const client = Array.isArray(arr) && arr.length ? arr[0] : null
+
+    if (!client) throw new Error('Credenciales inválidas o usuario inactivo')
+
+    // Validación simple de contraseña (solo para demo)
     if (client.password_hash !== password) {
-      throw new Error('Credenciales inválidas');
+      throw new Error('Credenciales inválidas')
     }
-    
-    // Guardar sesión en localStorage
+
     const sessionData = {
       user: {
         id: client.id,
@@ -30,13 +40,12 @@ export const login = async (email, password) => {
         role: client.role,
       },
       timestamp: Date.now(),
-    };
-    
-    localStorage.setItem('dashboard_session', JSON.stringify(sessionData));
-    
-    return sessionData.user;
+    }
+
+    localStorage.setItem('dashboard_session', JSON.stringify(sessionData))
+    return sessionData.user
   } catch (error) {
-    throw error;
+    throw error
   }
 };
 
