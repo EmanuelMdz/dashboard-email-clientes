@@ -102,14 +102,14 @@ export const syncCampaignMetrics = async (campaignId, instantlyCampaignId, start
     console.log('Syncing REAL metrics for campaign:', campaignId, 'Instantly ID:', instantlyCampaignId)
     console.log('Date range:', defaultStartDate, 'to', defaultEndDate)
     
-    // Obtener analytics diarios directo de n8n
+    // Obtener analytics diarios directo de n8n (sin corrimiento artificial)
     console.log('Fetching daily analytics directly from n8n for campaign:', instantlyCampaignId)
     
     const url = new URL(N8N_GET_DAILY_URL)
     url.searchParams.set('campaign_id', instantlyCampaignId)
-    // Para cubrir el corrimiento de zona horaria de Instantly, pedimos desde (start - 1 día)
-    const apiStartDate = shiftDateStr(defaultStartDate, -1)
-    const apiEndDate = defaultEndDate
+    // end_date suele ser exclusivo: para incluir el último día de la UI sumamos +1
+    const apiStartDate = defaultStartDate
+    const apiEndDate = shiftDateStr(defaultEndDate, 1)
     url.searchParams.set('start_date', apiStartDate)
     url.searchParams.set('end_date', apiEndDate)
     
@@ -132,27 +132,30 @@ export const syncCampaignMetrics = async (campaignId, instantlyCampaignId, start
     console.log('Daily analytics data from n8n:', analyticsData)
     console.log('API range used:', apiStartDate, '->', apiEndDate, '| UI range:', defaultStartDate, '->', defaultEndDate)
     
-    const dailyMetrics = []
-    
     // Normalizar respuesta de n8n (puede venir como array directo o dentro de body/data/result)
     const dailyData = analyticsData?.body || analyticsData?.data || analyticsData?.result || analyticsData
-    
+    let dailyMetrics = []
+
     if (dailyData && Array.isArray(dailyData)) {
-      // La respuesta es un array de objetos diarios
-      dailyData.forEach(dayData => {
-        const adjustedDate = shiftDailyDateForDisplay(dayData.date)
-        dailyMetrics.push({
-          campaign_id: campaignId,
-          date: adjustedDate,
-          messages_sent: dayData.sent || 0,
-          replies_received: dayData.replies || 0
+      // Usar los valores DIARIOS tal cual los devuelve la API
+      dailyMetrics = dailyData
+        .map(dayData => {
+          const dayStr = String(dayData.date || '').slice(0, 10)
+          if (!dayStr) return null
+          return {
+            campaign_id: campaignId,
+            date: dayStr,
+            messages_sent: Number(dayData.sent || 0),
+            replies_received: Number(dayData.replies || 0),
+          }
         })
-      })
+        .filter(Boolean)
+        .sort((a, b) => a.date.localeCompare(b.date))
     } else {
       // Respuesta inesperada o vacía: no forzar datos
       console.log('No daily analytics returned or unexpected format. Returning empty metrics.')
     }
-    // Filtrar al rango UI (ya con fechas ajustadas)
+    // Filtrar al rango UI
     const filteredMetrics = dailyMetrics.filter(d => d.date >= defaultStartDate && d.date <= defaultEndDate)
     console.log('Processed real metrics (filtered to UI range):', filteredMetrics.length, 'entries')
     return filteredMetrics
