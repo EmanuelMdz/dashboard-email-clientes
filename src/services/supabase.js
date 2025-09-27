@@ -65,18 +65,30 @@ export const deleteClientRecord = async (id) => {
 
 // Funciones para campañas
 export const getCampaigns = async (clientId = null) => {
-  let query = supabase
-    .from('campaigns')
-    .select('*')
-    .order('created_at', { ascending: false })
-  
-  if (clientId) {
-    query = query.eq('client_id', clientId)
+  try {
+    // Preferir el endpoint serverless en producción para evitar problemas de RLS
+    const url = clientId
+      ? `/api/campaigns?client_id=${encodeURIComponent(clientId)}`
+      : '/api/campaigns'
+    const res = await fetch(url, { method: 'GET' })
+    if (!res.ok) {
+      throw new Error(`API campaigns error ${res.status}`)
+    }
+    const data = await res.json()
+    return Array.isArray(data) ? data : []
+  } catch (_err) {
+    // Fallback: consulta directa a Supabase si la API no está disponible
+    let query = supabase
+      .from('campaigns')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (clientId) {
+      query = query.eq('client_id', clientId)
+    }
+    const { data, error } = await query
+    if (error) throw error
+    return data
   }
-  
-  const { data, error } = await query
-  if (error) throw error
-  return data
 }
 
 export const createCampaign = async (campaignData) => {
