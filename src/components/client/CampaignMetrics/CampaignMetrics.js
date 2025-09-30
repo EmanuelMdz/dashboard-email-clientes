@@ -2,19 +2,22 @@ import { useMemo } from 'react'
 import Card from '../../common/Card/Card.js'
 import Chart, { createChartData } from '../../common/Chart/Chart.js'
 import Table from '../../common/Table/Table.js'
+import InterestStats from '../InterestStats/InterestStats.js'
 import { formatDate, getDatesBetween, formatDateForInput } from '../../../utils/dateHelpers.js'
 import './CampaignMetrics.css'
 
-const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) => {
+const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange, interestData }) => {
   // Calcular totales
   const totals = useMemo(() => {
     const totalSent = metrics.reduce((sum, m) => sum + m.messages_sent, 0)
     const totalReplies = metrics.reduce((sum, m) => sum + m.replies_received, 0)
+    const totalUniqueReplies = metrics.reduce((sum, m) => sum + (m.unique_replies || 0), 0)
     const responseRate = totalSent > 0 ? ((totalReplies / totalSent) * 100) : 0
 
     return {
       totalSent,
       totalReplies,
+      totalUniqueReplies,
       responseRate: responseRate.toFixed(2),
       totalCampaigns: selectedCampaign === 'all' ? campaigns.length : 1
     }
@@ -26,10 +29,11 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
     const totalsByDate = metrics.reduce((acc, metric) => {
       const date = metric.date
       if (!acc[date]) {
-        acc[date] = { sent: 0, replies: 0 }
+        acc[date] = { sent: 0, replies: 0, unique_replies: 0 }
       }
       acc[date].sent += metric.messages_sent || 0
       acc[date].replies += metric.replies_received || 0
+      acc[date].unique_replies += metric.unique_replies || 0
       return acc
     }, {})
 
@@ -41,15 +45,16 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
     const labels = fullDates.map(d => formatDate(d))
     const sentSeries = fullDates.map(d => totalsByDate[d]?.sent || 0)
     const repliesSeries = fullDates.map(d => totalsByDate[d]?.replies || 0)
+    const uniqueRepliesSeries = fullDates.map(d => totalsByDate[d]?.unique_replies || 0)
 
     const datasets = [
       {
-        label: 'Mensajes Enviados',
-        data: sentSeries,
-        borderColor: '#3b82f6',
-        borderWidth: 3,
-        pointRadius: isOneDayRange ? 4 : 5,
-        pointHoverRadius: isOneDayRange ? 5 : 7,
+        label: 'Respuestas Únicas',
+        data: uniqueRepliesSeries,
+        borderColor: '#fbbf24',
+        borderWidth: 2,
+        pointRadius: isOneDayRange ? 3 : 4,
+        pointHoverRadius: isOneDayRange ? 4 : 6,
         tension: 0.2,
         spanGaps: true
       },
@@ -60,6 +65,16 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
         borderWidth: 2,
         pointRadius: isOneDayRange ? 3 : 4,
         pointHoverRadius: isOneDayRange ? 4 : 6,
+        tension: 0.2,
+        spanGaps: true
+      },
+      {
+        label: 'Mensajes Enviados',
+        data: sentSeries,
+        borderColor: '#3b82f6',
+        borderWidth: 3,
+        pointRadius: isOneDayRange ? 4 : 5,
+        pointHoverRadius: isOneDayRange ? 5 : 7,
         tension: 0.2,
         spanGaps: true
       }
@@ -84,6 +99,7 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
         campaign_name: campaign?.name || 'N/A',
         messages_sent: metric.messages_sent,
         replies_received: metric.replies_received,
+        unique_replies: metric.unique_replies || 0,
         response_rate: responseRate
       }
     }).sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -107,6 +123,11 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
     {
       key: 'replies_received',
       title: 'Respuestas',
+      align: 'center'
+    },
+    {
+      key: 'unique_replies',
+      title: 'Respuestas Únicas',
       align: 'center'
     },
     {
@@ -146,6 +167,13 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
           </div>
         </Card>
 
+        <Card className="metric-card">
+          <div className="metric-content">
+            <div className="metric-value">{totals.totalUniqueReplies.toLocaleString()}</div>
+            <div className="metric-label">Respuestas Únicas</div>
+          </div>
+        </Card>
+
         <Card className="metric-card metric-card--highlight">
           <div className="metric-content">
             <div className="metric-value">{totals.responseRate}%</div>
@@ -164,6 +192,14 @@ const CampaignMetrics = ({ campaigns, metrics, selectedCampaign, dateRange }) =>
             showGrid={true}
           />
         </Card>
+      )}
+
+      {/* Estadísticas de Interés */}
+      {interestData && (
+        <InterestStats 
+          interestData={interestData}
+          totalUniqueReplies={totals.totalUniqueReplies}
+        />
       )}
 
       {/* Tabla detallada */}

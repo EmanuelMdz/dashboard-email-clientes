@@ -170,7 +170,7 @@ export const createChartData = (labels, datasets) => {
       let shouldFill = dataset.fill
       
       if (!backgroundColor) {
-        if (index === 0 && dataset.label && dataset.label.includes('Mensajes')) {
+        if (dataset.label && dataset.label.includes('Mensajes')) {
           // Crear gradiente azul para "Mensajes Enviados"
           backgroundColor = (ctx) => {
             const canvas = ctx.chart.ctx
@@ -178,6 +178,17 @@ export const createChartData = (labels, datasets) => {
             gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)')
             gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.15)')
             gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)')
+            return gradient
+          }
+          shouldFill = true
+        } else if (dataset.label && dataset.label.includes('Respuestas Únicas')) {
+          // Crear gradiente amarillo para "Respuestas Únicas"
+          backgroundColor = (ctx) => {
+            const canvas = ctx.chart.ctx
+            const gradient = canvas.createLinearGradient(0, 0, 0, 400)
+            gradient.addColorStop(0, 'rgba(251, 191, 36, 0.3)')
+            gradient.addColorStop(0.5, 'rgba(251, 191, 36, 0.15)')
+            gradient.addColorStop(1, 'rgba(251, 191, 36, 0.05)')
             return gradient
           }
           shouldFill = true

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { logout } from '../../../services/auth.js'
 import { getCampaigns } from '../../../services/supabase.js'
-import { getRealTimeMetrics } from '../../../services/instantly.js'
+import { getRealTimeMetrics, getInterestStats } from '../../../services/instantly.js'
 import { exportClientSummary, exportDailyMetrics } from '../../../utils/exportHelpers.js'
 import { getDateRange } from '../../../utils/dateHelpers.js'
 import Button from '../../common/Button/Button.js'
@@ -9,12 +9,14 @@ import Card from '../../common/Card/Card.js'
 import Select from '../../common/Select/Select.js'
 import DatePicker, { DateRangePicker } from '../../common/DatePicker/DatePicker.js'
 import CampaignMetrics from '../CampaignMetrics/CampaignMetrics.js'
+import InterestStats from '../InterestStats/InterestStats.js'
 import BrandHeader from '../../common/Header/Header.js'
 import './ClientDashboard.css'
 
 const ClientDashboard = ({ user }) => {
   const [campaigns, setCampaigns] = useState([])
   const [metrics, setMetrics] = useState([])
+  const [interestData, setInterestData] = useState(null)
   const [selectedCampaign, setSelectedCampaign] = useState('all')
   const [dateRange, setDateRange] = useState(() => getDateRange('last30days'))
   const [loading, setLoading] = useState(true)
@@ -87,6 +89,30 @@ const ClientDashboard = ({ user }) => {
 
       console.log('=== FINISHED loadMetrics - Total entries:', allMetrics.length, '===')
       setMetrics(allMetrics)
+      
+      // Cargar estadísticas de interés desde n8n
+      try {
+        const campaignInstantlyIds = campaignsToLoad
+          .filter(c => c.instantly_campaign_id)
+          .map(c => c.instantly_campaign_id)
+        
+        if (campaignInstantlyIds.length > 0) {
+          console.log('Loading interest stats from n8n for campaigns:', campaignInstantlyIds)
+          const interest = await getInterestStats(
+            campaignInstantlyIds,
+            dateRange.startDate,
+            dateRange.endDate
+          )
+          setInterestData(interest)
+        } else {
+          setInterestData(null)
+        }
+      } catch (interestErr) {
+        console.error('Error loading interest stats:', interestErr)
+        // No mostrar error, solo loguearlo
+        setInterestData(null)
+      }
+      
       // Siempre limpiar error si la carga fue exitosa, aunque no haya datos
       setError('')
     } catch (err) {
@@ -289,6 +315,7 @@ const ClientDashboard = ({ user }) => {
                 metrics={metrics}
                 selectedCampaign={selectedCampaign}
                 dateRange={dateRange}
+                interestData={interestData}
               />
             </>
           )}

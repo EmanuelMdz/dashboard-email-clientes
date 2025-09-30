@@ -1,6 +1,7 @@
 // n8n endpoints (fuente de verdad)
 const N8N_GET_CAMPAIGNS_URL = import.meta.env.VITE_N8N_GET_CAMPAIGNS_URL || 'https://ssn8nwebhookss.ainnovateagency.com/webhook/get-campaigns'
 const N8N_GET_DAILY_URL = import.meta.env.VITE_N8N_GET_DAILY_URL || 'https://ssn8nwebhookss.ainnovateagency.com/webhook/get-data-daily-campaign'
+const N8N_GET_INTEREST_URL = 'https://ssn8nwebhookss.ainnovateagency.com/webhook/get-interest'
 
 // Cache simple para evitar llamadas repetidas a campañas
 let campaignsCache = null
@@ -9,6 +10,7 @@ const CACHE_DURATION = 30000 // 30 segundos
 
 console.log('Using n8n campaigns URL:', N8N_GET_CAMPAIGNS_URL)
 console.log('Using n8n daily URL:', N8N_GET_DAILY_URL)
+console.log('Using n8n interest URL:', N8N_GET_INTEREST_URL)
 
 // Algunos endpoints diarios de Instantly devuelven la fecha "etiqueta" corrida un día
 // (ej: datos del 26 aparecen como "2025-09-25"). Para alinear con la UI y el huso local,
@@ -147,6 +149,7 @@ export const syncCampaignMetrics = async (campaignId, instantlyCampaignId, start
             date: dayStr,
             messages_sent: Number(dayData.sent || 0),
             replies_received: Number(dayData.replies || 0),
+            unique_replies: Number(dayData.unique_replies || 0),
           }
         })
         .filter(Boolean)
@@ -276,5 +279,58 @@ export const syncCampaignsFromInstantly = async () => {
       success: false,
       message: `Error en sincronización: ${error.message}`
     }
+  }
+}
+
+// Función para obtener estadísticas de interés desde n8n
+export const getInterestStats = async (campaignIds, startDate, endDate) => {
+  try {
+    if (!campaignIds || campaignIds.length === 0) {
+      throw new Error('Se requiere al menos un ID de campaña')
+    }
+    
+    if (!startDate || !endDate) {
+      throw new Error('Se requieren fechas de inicio y fin')
+    }
+
+    console.log('Fetching interest stats from n8n for campaigns:', campaignIds)
+    console.log('Date range:', startDate, 'to', endDate)
+
+    // Construir query params
+    const url = new URL(N8N_GET_INTEREST_URL)
+    url.searchParams.set('ids', campaignIds.join(','))
+    url.searchParams.set('start_date', startDate)
+    url.searchParams.set('end_date', endDate)
+
+    console.log('N8N Interest URL:', url.toString())
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`n8n interest error ${response.status}: ${errorText}`)
+    }
+
+    const data = await response.json()
+    console.log('Interest stats data from n8n:', data)
+
+    // Normalizar respuesta de n8n (puede venir como array, objeto directo o dentro de body/data/result)
+    let interestData = data?.body || data?.data || data?.result || data
+    
+    // Si viene como array, tomar el primer elemento
+    if (Array.isArray(interestData) && interestData.length > 0) {
+      interestData = interestData[0]
+    }
+
+    return interestData
+    
+  } catch (error) {
+    console.error('Error getting interest stats from n8n:', error)
+    throw new Error(`Error al obtener estadísticas de interés: ${error.message}`)
   }
 }
