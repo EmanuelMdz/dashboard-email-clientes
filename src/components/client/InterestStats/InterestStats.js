@@ -9,18 +9,31 @@ const InterestStats = ({ interestData, totalUniqueReplies = 0 }) => {
   // Los datos vienen dentro de body
   const data = interestData.body || interestData
   
-  // total_opportunities son los interesados reales
-  // total_interested es el total de respuestas clasificadas (interesados + no interesados)
-  const interested = Number(data.total_opportunities) || 0
-  const totalClassified = Number(data.total_interested) || 0
-  const notInterested = totalClassified - interested
+  console.log('=== InterestStats Debug ===')
+  console.log('Raw data:', data)
+  console.log('totalUniqueReplies (prop):', totalUniqueReplies)
+  console.log('data.total_opportunities:', data.total_opportunities)
+  console.log('data.total_interested:', data.total_interested)
+  console.log('data.reply_count_unique:', data.reply_count_unique)
   
-  const interestedPercent = totalClassified > 0 
-    ? ((interested / totalClassified) * 100).toFixed(2)
+  // total_opportunities son los interesados reales
+  const interested = Number(data.total_opportunities) || 0
+  const notInterested = totalUniqueReplies - interested
+  
+  console.log('Calculated interested:', interested)
+  console.log('Calculated notInterested:', notInterested)
+  console.log('Division:', interested, '/', totalUniqueReplies, '=', (interested / totalUniqueReplies) * 100)
+  
+  const interestedPercent = totalUniqueReplies > 0 
+    ? ((interested / totalUniqueReplies) * 100).toFixed(2)
     : '0.00'
-  const notInterestedPercent = totalClassified > 0
-    ? ((notInterested / totalClassified) * 100).toFixed(2)
+  const notInterestedPercent = totalUniqueReplies > 0
+    ? ((notInterested / totalUniqueReplies) * 100).toFixed(2)
     : '0.00'
+  
+  console.log('Final percentages:', { interestedPercent, notInterestedPercent })
+  console.log('=== End Debug ===')
+
 
   return (
     <div className="interest-stats">
@@ -43,7 +56,7 @@ const InterestStats = ({ interestData, totalUniqueReplies = 0 }) => {
           </div>
         </div>
 
-        {totalClassified > 0 && (
+        {totalUniqueReplies > 0 && (
           <div className="interest-bar">
             <div 
               className="interest-bar-fill interest-bar-fill--positive"
@@ -57,7 +70,7 @@ const InterestStats = ({ interestData, totalUniqueReplies = 0 }) => {
         )}
 
         <div className="interest-footer">
-          <small>Basado en {totalClassified} respuestas clasificadas</small>
+          <small>Basado en {totalUniqueReplies} respuestas únicas</small>
         </div>
       </Card>
     </div>
