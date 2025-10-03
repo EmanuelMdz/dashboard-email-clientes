@@ -9,15 +9,17 @@ const InterestStats = ({ interestData, totalUniqueReplies = 0 }) => {
   // Los datos vienen dentro de body
   const data = interestData.body || interestData
   
-  const totalReplies = Number(data.reply_count) || 0
-  const interested = Number(data.total_interested) || 0
-  const notInterested = totalReplies - interested
+  // total_opportunities son los interesados reales
+  // total_interested es el total de respuestas clasificadas (interesados + no interesados)
+  const interested = Number(data.total_opportunities) || 0
+  const totalClassified = Number(data.total_interested) || 0
+  const notInterested = totalClassified - interested
   
-  const interestedPercent = totalReplies > 0 
-    ? ((interested / totalReplies) * 100).toFixed(2)
+  const interestedPercent = totalClassified > 0 
+    ? ((interested / totalClassified) * 100).toFixed(2)
     : '0.00'
-  const notInterestedPercent = totalReplies > 0
-    ? ((notInterested / totalReplies) * 100).toFixed(2)
+  const notInterestedPercent = totalClassified > 0
+    ? ((notInterested / totalClassified) * 100).toFixed(2)
     : '0.00'
 
   return (
@@ -41,7 +43,7 @@ const InterestStats = ({ interestData, totalUniqueReplies = 0 }) => {
           </div>
         </div>
 
-        {totalReplies > 0 && (
+        {totalClassified > 0 && (
           <div className="interest-bar">
             <div 
               className="interest-bar-fill interest-bar-fill--positive"
@@ -55,7 +57,7 @@ const InterestStats = ({ interestData, totalUniqueReplies = 0 }) => {
         )}
 
         <div className="interest-footer">
-          <small>Basado en {totalUniqueReplies} respuestas únicas</small>
+          <small>Basado en {totalClassified} respuestas clasificadas</small>
         </div>
       </Card>
     </div>
