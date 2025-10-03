@@ -8,10 +8,6 @@ let campaignsCache = null
 let cacheTimestamp = null
 const CACHE_DURATION = 30000 // 30 segundos
 
-console.log('Using n8n campaigns URL:', N8N_GET_CAMPAIGNS_URL)
-console.log('Using n8n daily URL:', N8N_GET_DAILY_URL)
-console.log('Using n8n interest URL:', N8N_GET_INTEREST_URL)
-
 // Algunos endpoints diarios de Instantly devuelven la fecha "etiqueta" corrida un día
 // (ej: datos del 26 aparecen como "2025-09-25"). Para alinear con la UI y el huso local,
 // desplazamos +1 día para mostrar.
@@ -48,11 +44,8 @@ export const listCampaigns = async (params = {}) => {
     // Verificar cache
     const now = Date.now()
     if (campaignsCache && cacheTimestamp && (now - cacheTimestamp) < CACHE_DURATION) {
-      console.log('Using cached campaigns data')
       return campaignsCache
     }
-
-    console.log('Fetching campaigns directly from n8n:', N8N_GET_CAMPAIGNS_URL)
 
     const response = await fetch(N8N_GET_CAMPAIGNS_URL, { 
       method: 'GET',
@@ -67,7 +60,6 @@ export const listCampaigns = async (params = {}) => {
     }
     
     const data = await response.json()
-    console.log('N8N campaigns response:', data)
     
     // Normalizar posibles formas: { items }, { body: { items } }, etc.
     const items = data?.items || data?.body?.items || data?.data?.items || data?.result?.items || []
@@ -76,11 +68,9 @@ export const listCampaigns = async (params = {}) => {
     // Guardar en cache
     campaignsCache = result
     cacheTimestamp = now
-    console.log('Campaigns cached for', CACHE_DURATION / 1000, 'seconds')
     
     return result
   } catch (error) {
-    console.error('Error listCampaigns (n8n direct):', error)
     throw new Error(`Error al obtener campañas: ${error.message}`)
   }
 }
@@ -100,12 +90,8 @@ export const syncCampaignMetrics = async (campaignId, instantlyCampaignId, start
     }
     const defaultStartDate = startDate
     const defaultEndDate = endDate
-
-    console.log('Syncing REAL metrics for campaign:', campaignId, 'Instantly ID:', instantlyCampaignId)
-    console.log('Date range:', defaultStartDate, 'to', defaultEndDate)
     
     // Obtener analytics diarios directo de n8n (sin corrimiento artificial)
-    console.log('Fetching daily analytics directly from n8n for campaign:', instantlyCampaignId)
     
     const url = new URL(N8N_GET_DAILY_URL)
     url.searchParams.set('campaign_id', instantlyCampaignId)
@@ -114,8 +100,6 @@ export const syncCampaignMetrics = async (campaignId, instantlyCampaignId, start
     const apiEndDate = shiftDateStr(defaultEndDate, 1)
     url.searchParams.set('start_date', apiStartDate)
     url.searchParams.set('end_date', apiEndDate)
-    
-    console.log('N8N daily URL:', url.toString())
     
     const response = await fetch(url.toString(), { 
       method: 'GET',
@@ -130,9 +114,6 @@ export const syncCampaignMetrics = async (campaignId, instantlyCampaignId, start
     }
     
     const analyticsData = await response.json()
-    
-    console.log('Daily analytics data from n8n:', analyticsData)
-    console.log('API range used:', apiStartDate, '->', apiEndDate, '| UI range:', defaultStartDate, '->', defaultEndDate)
     
     // Normalizar respuesta de n8n (puede venir como array directo o dentro de body/data/result)
     const dailyData = analyticsData?.body || analyticsData?.data || analyticsData?.result || analyticsData
@@ -156,18 +137,13 @@ export const syncCampaignMetrics = async (campaignId, instantlyCampaignId, start
         .sort((a, b) => a.date.localeCompare(b.date))
     } else {
       // Respuesta inesperada o vacía: no forzar datos
-      console.log('No daily analytics returned or unexpected format. Returning empty metrics.')
     }
     // Filtrar al rango UI
     const filteredMetrics = dailyMetrics.filter(d => d.date >= defaultStartDate && d.date <= defaultEndDate)
-    console.log('Processed real metrics (filtered to UI range):', filteredMetrics.length, 'entries')
     return filteredMetrics
     
   } catch (error) {
-    console.error('Error getting real metrics from Instantly API:', error)
-    console.error('Full error details:', error)
     // Sin fallbacks: si falla o no hay datos, devolver vacío
-    console.log('No real data available from Instantly API - returning empty metrics')
     return []
   }
 }
@@ -293,16 +269,11 @@ export const getInterestStats = async (campaignIds, startDate, endDate) => {
       throw new Error('Se requieren fechas de inicio y fin')
     }
 
-    console.log('Fetching interest stats from n8n for campaigns:', campaignIds)
-    console.log('Date range:', startDate, 'to', endDate)
-
     // Construir query params
     const url = new URL(N8N_GET_INTEREST_URL)
     url.searchParams.set('ids', campaignIds.join(','))
     url.searchParams.set('start_date', startDate)
     url.searchParams.set('end_date', endDate)
-
-    console.log('N8N Interest URL:', url.toString())
 
     const response = await fetch(url.toString(), {
       method: 'GET',
@@ -317,7 +288,6 @@ export const getInterestStats = async (campaignIds, startDate, endDate) => {
     }
 
     const data = await response.json()
-    console.log('Interest stats data from n8n:', data)
 
     // Normalizar respuesta de n8n (puede venir como array, objeto directo o dentro de body/data/result)
     let interestData = data?.body || data?.data || data?.result || data
@@ -330,7 +300,6 @@ export const getInterestStats = async (campaignIds, startDate, endDate) => {
     return interestData
     
   } catch (error) {
-    console.error('Error getting interest stats from n8n:', error)
     throw new Error(`Error al obtener estadísticas de interés: ${error.message}`)
   }
 }

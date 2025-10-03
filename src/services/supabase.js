@@ -3,10 +3,6 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// DEBUG: Imprimir variables de entorno para verificar que se cargan en Vercel
-console.log('Supabase URL leída:', supabaseUrl);
-console.log('Supabase Anon Key leída:', supabaseAnonKey ? 'Clave encontrada' : '¡CLAVE NO ENCONTRADA!');
-
 export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey)
 
 // Funciones para clientes

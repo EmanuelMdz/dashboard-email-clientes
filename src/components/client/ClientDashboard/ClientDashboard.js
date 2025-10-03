@@ -41,14 +41,11 @@ const ClientDashboard = ({ user }) => {
       setLoading(true)
       setError('')
       
-      console.log('Loading campaigns for client:', user.id)
       const clientCampaigns = await getCampaigns(user.id)
-      console.log('Client campaigns loaded:', clientCampaigns)
       setCampaigns(clientCampaigns)
       
     } catch (err) {
       setError('Error al cargar las campañas: ' + err.message)
-      console.error('Error loading client data:', err)
     } finally {
       setLoading(false)
     }
@@ -57,25 +54,19 @@ const ClientDashboard = ({ user }) => {
   const loadMetrics = async () => {
     try {
       if (loadingMetrics) {
-        console.log('loadMetrics: skipped (already running)')
         return
       }
       setLoadingMetrics(true)
       setError('')
-      console.log('=== STARTING loadMetrics ===')
-      console.log('Selected date range:', dateRange.startDate, '->', dateRange.endDate)
       
       const campaignsToLoad = selectedCampaign === 'all' 
         ? campaigns
         : campaigns.filter(c => c.id === selectedCampaign)
 
-      console.log('Campaigns to load:', campaignsToLoad.length)
       const allMetrics = []
       
       for (const campaign of campaignsToLoad) {
-        console.log('Loading daily metrics by ID (n8n real-time):', campaign.name, campaign.instantly_campaign_id)
         if (!campaign.instantly_campaign_id) {
-          console.warn('Campaign missing instantly_campaign_id. Skipping:', campaign)
           continue
         }
         const metrics = await getRealTimeMetrics(
@@ -87,7 +78,6 @@ const ClientDashboard = ({ user }) => {
         allMetrics.push(...metrics)
       }
 
-      console.log('=== FINISHED loadMetrics - Total entries:', allMetrics.length, '===')
       setMetrics(allMetrics)
       
       // Cargar estadísticas de interés desde n8n
@@ -97,7 +87,6 @@ const ClientDashboard = ({ user }) => {
           .map(c => c.instantly_campaign_id)
         
         if (campaignInstantlyIds.length > 0) {
-          console.log('Loading interest stats from n8n for campaigns:', campaignInstantlyIds)
           const interest = await getInterestStats(
             campaignInstantlyIds,
             dateRange.startDate,
@@ -108,8 +97,7 @@ const ClientDashboard = ({ user }) => {
           setInterestData(null)
         }
       } catch (interestErr) {
-        console.error('Error loading interest stats:', interestErr)
-        // No mostrar error, solo loguearlo
+        // No mostrar error
         setInterestData(null)
       }
       
@@ -117,7 +105,6 @@ const ClientDashboard = ({ user }) => {
       setError('')
     } catch (err) {
       setError('Error al cargar las métricas desde Instantly: ' + err.message)
-      console.error('Error loading real-time metrics:', err)
     } finally {
       setLoadingMetrics(false)
     }
@@ -128,14 +115,11 @@ const ClientDashboard = ({ user }) => {
       setSyncing(true)
       setError('')
       
-      console.log('=== Reloading real-time metrics from Instantly ===')
-      
       // Cargar métricas directamente desde Instantly
       await loadMetrics()
       
     } catch (err) {
       setError('Error al cargar métricas en tiempo real: ' + err.message)
-      console.error('Error loading real-time metrics:', err)
     } finally {
       setSyncing(false)
     }

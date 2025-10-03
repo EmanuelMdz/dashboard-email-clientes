@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js'
+import logger from '../utils/logger.js'
 
 // Env vars used for direct REST fallback (build-time via Vite)
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
@@ -71,7 +72,7 @@ export const getCurrentUser = () => {
     
     return session.user
   } catch (error) {
-    console.error('Error al obtener usuario actual:', error)
+    logger.error('Error al obtener usuario actual:', error)
     return null
   }
 }

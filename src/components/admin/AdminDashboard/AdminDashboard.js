@@ -39,7 +39,6 @@ const AdminDashboard = ({ user }) => {
       
     } catch (err) {
       setError('Error al cargar los datos: ' + err.message)
-      console.error('Error loading admin data:', err)
     } finally {
       setLoading(false)
     }
